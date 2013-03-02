@@ -36,3 +36,14 @@
 			(rel-path
 				(clojure.java.io/file "base/path")
 				(clojure.java.io/file "base/path/file")))))
+
+(import java.io.File org.apache.commons.io.FileUtils)
+(deftest testFolderCopy
+	(testing "Check target/simple for two files."
+		(do
+			(FileUtils/deleteDirectory (File. "target/simple"))
+			(folder-copy (File. "sample/simple") (File. "target/simple")
+		  	[(File. "sample/simple/a.txt")
+		  	(File. "sample/simple/folder")
+		  	(File. "sample/simple/folder/b.gif")])
+			(= 2 (count (file-seq (File. "target/simple")))))))

@@ -37,7 +37,7 @@
 				:when zipEntry]
 				(do
 					(println (str "Copying " entry "..."))
-					(.putNextEntry zout zipEntry)
+					(.putNextEntry zout (-> zipEntry .getName ZipEntry.))
 					(IOUtils/copy (.getInputStream zin zipEntry) zout))))))
 
 (defn zip-filter-copy
@@ -94,5 +94,5 @@
   "I don't do a whole lot ... yet."
   [& args]
   (println "Hello, World!")
-  (folder-filter-copy "sample/simple" "target/simple2" [".txt"])
+  (folder-filter-copy "/" "target/performance" [".txt"])
 )

@@ -23,6 +23,13 @@
 			(zip-filter-copy "sample/simple/doc.zip" "target/doc2.zip" [".txt"])
 			(is (= 1 (count (zip-seq "target/doc2.zip")))))))
 
+(deftest testZipFilterCopyEmpty
+	(testing "Empty zip is not copied."
+		(do
+			(-> "target/doc3.zip" File. .delete)
+			(zip-filter-copy "sample/simple/doc.zip" "target/doc3.zip" [".nofile"])
+			(is (not (-> "target/doc3.zip" File. .exists))))))
+
 (deftest testRelativePath
 	(testing "base/path, base/path/file, -> file"
 		(is (= "/file" 

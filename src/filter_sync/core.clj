@@ -43,7 +43,9 @@
 (defn zip-filter-copy
 	"Filter the zip file with specified extensions."
 	[from to ext]
-	(zip-copy from to (zip-filter from ext)))
+	(let [coll (zip-filter from ext)]
+		(when-not (empty? coll)
+			(zip-copy from to coll))))
 
 (defn rel-path
 	"Calculate relative path."

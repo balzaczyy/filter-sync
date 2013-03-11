@@ -17,9 +17,9 @@
 
 (defn zip-filter
 	"Scan the zip file and keep only matched entries."
-	[filename s]
+	[filename conds]
 	(lazy-seq
-		(filter #(.endsWith % s) (zip-seq filename))))
+		(filter (fn [entry] (some #(.endsWith entry %) conds)) (zip-seq filename))))
 
 (import
 	org.apache.commons.io.IOUtils
@@ -55,7 +55,7 @@
 (import java.io.File)
 (defn folder-copy
 	"Copy the folder with given entries."
-	[from to entries]
+	[from to entries f]
 	(do
 		(.mkdirs to)
 		(dorun
@@ -72,21 +72,27 @@
 								(println (str "Creating " parent "..."))
 								(.mkdirs parent)))
 						(println (str "Copying to " target "..."))
-						(clojure.java.io/copy file target)))))))
+						(f file target)))))))
 
 (defn folder-filter
 	"Scan the target folder and keep the matching entries with given extensions."
-	[folder s]
+	[folder conds]
 	(lazy-seq
-		(filter (fn [file] (.endsWith (.getPath file) s)) (file-seq (File. folder)))))
+		(filter (fn [file] (some (fn [s] (.endsWith (.getPath file) s)) conds)) (file-seq (File. folder)))))
 
 (defn folder-filter-copy
 	"Filter the folder with specified extensions."
 	[from to ext]
-	(folder-copy (File. from) (File. to) (folder-filter from ext)))
+	(folder-copy (File. from) (File. to) (folder-filter from (conj ext ".zip" ".jar"))
+		(fn [source target]
+			(let [filename (.getPath source)]
+				(if (or (.endsWith filename ".zip") (.endsWith filename ".jar"))
+					(zip-filter-copy source target ext)
+					(clojure.java.io/copy source target))))))
 
 (defn -main
   "I don't do a whole lot ... yet."
   [& args]
   (println "Hello, World!")
+  (folder-filter-copy "sample/simple" "target/simple2" [".txt"])
 )

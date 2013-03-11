@@ -66,8 +66,12 @@
 					(do
 						(println (str "Creating " target "..."))
 						(.mkdirs target))
-					(do
-						(println (str "Copying " target "..."))
+					(do ;is file
+						(when-not (.exists target)
+							(let [parent (.getParentFile target)]
+								(println (str "Creating " parent "..."))
+								(.mkdirs parent)))
+						(println (str "Copying to " target "..."))
 						(clojure.java.io/copy file target)))))))
 
 (defn folder-filter
@@ -79,7 +83,7 @@
 (defn folder-filter-copy
 	"Filter the folder with specified extensions."
 	[from to ext]
-	(folder-copy from to (folder-filter from ext)))
+	(folder-copy (File. from) (File. to) (folder-filter from ext)))
 
 (defn -main
   "I don't do a whole lot ... yet."

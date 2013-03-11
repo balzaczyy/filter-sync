@@ -57,3 +57,10 @@
 (deftest testFolderFilter2
 	(testing "file-seq with conditional filters"
 		(= ["a.txt"] (folder-filter "sample/simple" ".txt"))))
+
+(deftest testFolderFilterCopy
+	(testing "Folder copy with given filters."
+		(do
+			(FileUtils/deleteDirectory (File. "target/simple2"))
+			(folder-filter-copy "sample/simple" "target/simple2" ".txt")
+			(= 2 (count (file-seq (File. "target/simple2")))))))

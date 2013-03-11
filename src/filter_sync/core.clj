@@ -41,7 +41,7 @@
 					(IOUtils/copy (.getInputStream zin zipEntry) zout))))))
 
 (defn zip-filter-copy
-	"Copy the filter with given filter."
+	"Filter the zip file with specified extensions."
 	[from to ext]
 	(zip-copy from to (zip-filter from ext)))
 
@@ -70,11 +70,19 @@
 						(println (str "Copying " target "..."))
 						(clojure.java.io/copy file target)))))))
 
+(defn folder-filter
+	"Scan the target folder and keep the matching entries with given extensions."
+	[folder s]
+	(lazy-seq
+		(filter (fn [file] (.endsWith (.getPath file) s)) (file-seq (File. folder)))))
+
+(defn folder-filter-copy
+	"Filter the folder with specified extensions."
+	[from to ext]
+	(folder-copy from to (folder-filter from ext)))
+
 (defn -main
   "I don't do a whole lot ... yet."
   [& args]
   (println "Hello, World!")
-  (folder-copy (File. "sample/simple") (File. "target/simple")
-  	[(File. "sample/simple/a.txt")
-  	(File. "sample/simple/folder")
-  	(File. "sample/simple/folder/b.gif")]))
+)

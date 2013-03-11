@@ -49,3 +49,11 @@
 		  	(File. "sample/simple/folder")
 		  	(File. "sample/simple/folder/b.gif")])
 			(= 2 (count (file-seq (File. "target/simple")))))))
+
+(deftest testFolderFilter
+	(testing "file-seq with conditional filters"
+		(= 1 (count (folder-filter "sample/simple" ".txt")))))
+
+(deftest testFolderFilter2
+	(testing "file-seq with conditional filters"
+		(= ["a.txt"] (folder-filter "sample/simple" ".txt"))))

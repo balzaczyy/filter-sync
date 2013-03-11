@@ -18,17 +18,19 @@
 	(testing "The doc.zip contains one text file: a.txt."
 		(= ["a.txt"] (zip-filter "sample/simple/doc.zip" ".txt"))))
 
+(import java.io.File)
 (deftest testZipCopy
 	(testing "Check out/doc.zip if it's identical."
 		(do
+			(.mkdirs (File. "sample/simple/out"))
 			(zip-copy "sample/simple/doc.zip" "sample/simple/out/doc.zip" '("a.txt" "b.gif"))
 			(= 2 (count (zip-seq "sample/simple/out/doc.zip"))))))
 
 (deftest testZipFilterCopy
 	(testing "Check out/doc.zip if it contains only text files."
 		(do
-			(zip-filter-copy "sample/simple/doc.zip" "sample/simple/out/doc.zip" ".txt")
-			(= 1 (count (zip-seq "sample/simple/out/doc.zip"))))))
+			(zip-filter-copy "sample/simple/doc.zip" "sample/simple/out/doc2.zip" ".txt")
+			(= 1 (count (zip-seq "sample/simple/out/doc2.zip"))))))
 
 (deftest testRelativePath
 	(testing "base/path, base/path/file, -> file"

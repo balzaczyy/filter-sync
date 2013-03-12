@@ -52,7 +52,7 @@
 (deftest testFolderFilter
 	(testing "file-seq with conditional filters"
 		(is (= ["sample/simple/a.txt" "sample/simple/folder/a.txt"]
-			(map #(.getPath %) (folder-filter "sample/simple" [".txt"]))))))
+			(map #(.replace (.getPath %) \\ \/) (folder-filter "sample/simple" [".txt"]))))))
 
 (deftest testFolderFilterCopy
 	(testing "Folder copy with given filters including zip files."

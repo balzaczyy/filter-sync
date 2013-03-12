@@ -51,7 +51,7 @@
 	"Calculate relative path."
 	[source target]
 	(let [len (-> source .getPath .length)
-		s (.getPath target)]
+		s (.replace (.getPath target) \\ \/)]
 		(.substring s len)))
 
 (import java.io.File)
@@ -96,5 +96,5 @@
   "I don't do a whole lot ... yet."
   [& args]
   (println "Hello, World!")
-  (folder-filter-copy "/" "target/performance" [".txt"])
+  (folder-filter-copy "/" "target/performance" [".xml" ".properties" ".html" ".dita" ".ditamap" "MANIFEST.MF" "doc.zip" ".jar"])
 )

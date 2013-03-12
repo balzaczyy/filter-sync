@@ -40,12 +40,26 @@
 					(.putNextEntry zout (-> zipEntry .getName ZipEntry.))
 					(IOUtils/copy (.getInputStream zin zipEntry) zout))))))
 
-(defn zip-filter-copy
+(import java.io.File)
+(defn lastModified
+	"Obtain last modified time for given File or String"
+	[file]
+	(if (instance? File file)
+		(.lastModified file)
+		(-> file File. .lastModified)))
+
+(defn zip-sync
+	"Copy the zip with given entries but skip newer target file."
+	[from to entries]
+	(when (> (lastModified from) (lastModified to))
+		(zip-copy from to entries)))
+
+(defn zip-filter-sync
 	"Filter the zip file with specified extensions."
 	[from to ext]
 	(let [coll (zip-filter from ext)]
 		(when-not (empty? coll)
-			(zip-copy from to coll))))
+			(zip-sync from to coll))))
 
 (defn rel-path
 	"Calculate relative path."
@@ -54,7 +68,6 @@
 		s (.replace (.getPath target) \\ \/)]
 		(.substring s len)))
 
-(import java.io.File)
 (defn folder-copy
 	"Copy the folder with given entries."
 	[from to entries f]
@@ -89,12 +102,12 @@
 		(fn [source target]
 			(let [filename (.getPath source)]
 				(if (or (.endsWith filename ".zip") (.endsWith filename ".jar"))
-					(zip-filter-copy source target ext)
+					(zip-filter-sync source target ext)
 					(clojure.java.io/copy source target))))))
 
 (defn -main
   "I don't do a whole lot ... yet."
   [& args]
   (println "Hello, World!")
-  (folder-filter-copy "/" "target/performance" [".xml" ".properties" ".html" ".dita" ".ditamap" "MANIFEST.MF" "doc.zip" ".jar"])
+  (folder-filter-copy "../sample" "target/performance" [".xml" ".properties" ".html" ".dita" ".ditamap" "MANIFEST.MF" "doc.zip" ".jar"])
 )

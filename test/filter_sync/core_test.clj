@@ -4,7 +4,7 @@
 
 (deftest testZipSeq
 	(testing "The doc.zip contains: a.txt and b.gif."
-		(is (= ["b.gif" "a.txt"] (zip-seq "sample/simple/doc.zip")))))
+		(is (= ["c.png" "b.gif" "a.txt"] (zip-seq "sample/simple/doc.zip")))))
 
 (deftest testZipFilter
 	(testing "The doc.zip contains one text file: a.txt."
@@ -14,20 +14,35 @@
 (deftest testZipCopy
 	(testing "Check target/doc.zip if it's identical."
 		(do
+			(-> "target/doc.zip" File. .delete)
 			(zip-copy "sample/simple/doc.zip" "target/doc.zip" '("a.txt" "b.gif"))
+			(is (= 2 (count (zip-seq "target/doc.zip")))))))
+
+(deftest testLastModified
+	(testing "Obtain last modified time."
+		(do
+			(is (instance? File (File. "sample/a.txt") File))
+			(is (= (lastModified (File. "sample/a.txt"))
+				(lastModified "sample/a.txt"))))))
+
+(deftest testZipSync
+	(testing "Check target/doc.zip if it's not changed."
+		(do
+			(zip-sync "sample/simple/doc.zip" "target/doc.zip" ["a.txt" "b.gif" "c.png"])
 			(is (= 2 (count (zip-seq "target/doc.zip")))))))
 
 (deftest testZipFilterCopy
 	(testing "Check out/doc.zip if it contains only text files."
 		(do
-			(zip-filter-copy "sample/simple/doc.zip" "target/doc2.zip" [".txt"])
+			(-> "target/doc2.zip" File. .delete)
+			(zip-filter-sync "sample/simple/doc.zip" "target/doc2.zip" [".txt"])
 			(is (= 1 (count (zip-seq "target/doc2.zip")))))))
 
 (deftest testZipFilterCopyEmpty
 	(testing "Empty zip is not copied."
 		(do
 			(-> "target/doc3.zip" File. .delete)
-			(zip-filter-copy "sample/simple/doc.zip" "target/doc3.zip" [".nofile"])
+			(zip-filter-sync "sample/simple/doc.zip" "target/doc3.zip" [".nofile"])
 			(is (not (-> "target/doc3.zip" File. .exists))))))
 
 (deftest testRelativePath

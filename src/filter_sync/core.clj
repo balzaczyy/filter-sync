@@ -2,18 +2,21 @@
   (:gen-class))
 
 (import 
-	java.io.FileInputStream
+	'(java.io FileInputStream IOException)
 	'(java.util.zip ZipEntry ZipInputStream))
 
 (defn zip-seq
 	"Convert zip file into sequence."
 	[filename]
 	(lazy-seq
-		(loop [zin (-> filename FileInputStream. ZipInputStream.) coll '()]
-			(let [entry (.getNextEntry zin)]
-				(if (nil? entry)
-					coll
-					(recur zin (conj coll (.getName entry))))))))
+		(try
+			(loop [zin (-> filename FileInputStream. ZipInputStream.) coll '()]
+				(let [entry (.getNextEntry zin)]
+					(if (nil? entry)
+						coll
+						(recur zin (conj coll (.getName entry))))))
+			(catch Exception e
+				println e))))
 
 (defn zip-filter
 	"Scan the zip file and keep only matched entries."
@@ -51,8 +54,9 @@
 (defn zip-sync
 	"Copy the zip with given entries but skip newer target file."
 	[from to entries]
-	(when (> (lastModified from) (lastModified to))
-		(zip-copy from to entries)))
+	(if (> (lastModified from) (lastModified to))
+		(zip-copy from to entries)
+		(println (str "Skip " from "..."))))
 
 (defn zip-filter-sync
 	"Filter the zip file with specified extensions."
@@ -100,10 +104,12 @@
 	[from to ext]
 	(folder-copy (File. from) (File. to) (folder-filter from (conj ext ".zip" ".jar"))
 		(fn [source target]
-			(let [filename (.getPath source)]
-				(if (or (.endsWith filename ".zip") (.endsWith filename ".jar"))
-					(zip-filter-sync source target ext)
-					(clojure.java.io/copy source target))))))
+			(if (> (lastModified source) (lastModified target))
+				(let [filename (.getPath source)]
+					(if (or (.endsWith filename ".zip") (.endsWith filename ".jar"))
+						(zip-filter-sync source target ext)
+						(clojure.java.io/copy source target)))
+				(println (str "Skip " source "..."))))))
 
 (defn -main
   "I don't do a whole lot ... yet."

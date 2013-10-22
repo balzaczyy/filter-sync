@@ -115,5 +115,5 @@
   "I don't do a whole lot ... yet."
   [& args]
   (println "Hello, World!")
-  (folder-filter-copy "../sample" "target/performance" [".xml" ".properties" ".html" ".dita" ".ditamap" "MANIFEST.MF" "doc.zip" ".jar"])
+  (folder-filter-copy "../sample/v10r1" "target/performance" [".xml" ".properties" ".ditamap" "MANIFEST.MF" "doc.zip" ".jar"])
 )
